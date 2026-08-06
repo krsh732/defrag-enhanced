@@ -24,7 +24,7 @@ DEFINE_HOOK(void, CG_DrawActive, (stereoFrame_t stereoFrame))
     // This must be after the original as we want the miniview to be on top of
     // the real view. Also, you typically want other things to be before this as
     // well, as otherwise they'd show up in the minivew and not the real view.
-    CG_DrawRecall();
+    CG_Recall_Draw();
 END_HOOK
 
 /*

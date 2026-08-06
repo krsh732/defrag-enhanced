@@ -18,7 +18,7 @@ consoleCommandStatus_t CG_SaveState_f(void)
         return CON_CMD_HANDLED;
     }
 
-    state = CG_GetRecallState();
+    state = CG_Recall_GetState();
     if (!state) {
         if (!CaptureCurrentState(&current_state)) {
             trap_Print(LOG_ERROR "Saving current state is not supported\n");
