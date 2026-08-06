@@ -4,7 +4,8 @@ consoleCommandStatus_t CG_SaveState_f(void)
 {
     char cvar_name[MAX_TOKEN_CHARS];
     char restore_command[MAX_STRING_CHARS];
-    saveState_t state;
+    saveState_t* state;
+    saveState_t current_state;
 
     trap_Argv(1, cvar_name, sizeof(cvar_name));
     if (cvar_name[0] == '\0') {
@@ -17,9 +18,13 @@ consoleCommandStatus_t CG_SaveState_f(void)
         return CON_CMD_HANDLED;
     }
 
-    if (!CaptureCurrentState(&state)) {
-        trap_Print(LOG_ERROR "Saving current state is not supported\n");
-        return CON_CMD_HANDLED;
+    state = CG_Recall_GetState();
+    if (!state) {
+        if (!CaptureCurrentState(&current_state)) {
+            trap_Print(LOG_ERROR "Saving current state is not supported\n");
+            return CON_CMD_HANDLED;
+        }
+        state = &current_state;
     }
 
 #define PREFIX_ RESTORE_STATE_CMD " "
@@ -28,7 +33,7 @@ consoleCommandStatus_t CG_SaveState_f(void)
        PREFIX_LEN_ + SERIALIZED_SAVESTATE_SIZE < sizeof(restore_command),
        "restore command won't fit");
     Q_strncpyz(restore_command, PREFIX_, sizeof(restore_command));
-    SerializeSaveState(&state, restore_command + PREFIX_LEN_ - 1);
+    SerializeSaveState(state, restore_command + PREFIX_LEN_ - 1);
 #undef PREFIX_LEN_
 #undef PREFIX_
 

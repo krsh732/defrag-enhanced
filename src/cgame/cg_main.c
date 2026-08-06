@@ -64,4 +64,17 @@ DEFINE_HOOK(void, CG_Init,
             (int serverMessageNum, int serverCommandSequence, int clientNum))
     trap_Print("^0HELLO ^1WORLD ^7(CGAME)\n");
     ORIGINAL(CG_Init)(serverMessageNum, serverCommandSequence, clientNum);
+    CG_Recall_AutoLoadHistory();
+END_HOOK
+
+/*
+=================
+CG_Shutdown
+
+Called before every level change or subsystem restart
+=================
+*/
+DEFINE_HOOK(void, CG_Shutdown, (void))
+    CG_Recall_AutoSaveHistory();
+    ORIGINAL(CG_Shutdown)();
 END_HOOK

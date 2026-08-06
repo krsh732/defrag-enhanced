@@ -60,7 +60,13 @@
       "Show overbounces on no-OB surfaces.")                                   \
                                                                                \
     V(cg_overbounceMaxTestsPerFrame, "50", CVAR_ARCHIVE,                       \
-      "The maximum number of checks for overbounces allowed per frame.")
+      "The maximum number of checks for overbounces allowed per frame.")       \
+                                                                               \
+    V(cg_recallRecordMode, "0", CVAR_ARCHIVE,                                  \
+      "Record states to the recall history buffer.\n"                          \
+      "0: Don't record\n"                                                      \
+      "1: Record temporarily (history does not persist across sessions)\n"     \
+      "2: Autosave/load (history persists across sessions)")
 
 #define DECLARE_CVAR_(name, default, flags, description) extern vmCvar_t name;
 FOR_EACH_CVAR(DECLARE_CVAR_)
@@ -98,18 +104,25 @@ void CG_LoadBSP(void);
 // cg_consolecmds.c
 //
 
-// This type alias is simply here for readability/convenience so we don't have
-// to remember what true/false is or go look it up each time.
-// NOTE: It is not its own enum type as we use it as CG_ConsoleCommand's
-// return type and making it a separate enum would cause conflicting
+// This type alias is simply here for readability/convenience so we don't
+// have to remember what true/false is or go look it up each time. NOTE:
+// It is not its own enum type as we use it as CG_ConsoleCommand's return
+// type and making it a separate enum would cause conflicting
 // redeclaration errors with the signature declared in SDK's cg_local.h
 typedef qboolean consoleCommandStatus_t;
 #define CON_CMD_NOT_HANDLED qfalse
 #define CON_CMD_HANDLED qtrue
 
-#define FOR_EACH_CONSOLE_COMMAND(V)         \
-    V("savestate", CG_SaveState_f)          \
-    V(RESTORE_STATE_CMD, CG_RestoreState_f) \
+#define FOR_EACH_CONSOLE_COMMAND(V)                   \
+    V("savestate", CG_SaveState_f)                    \
+    V(RESTORE_STATE_CMD, CG_RestoreState_f)           \
+    V("recall", CG_Recall_f)                          \
+    V("recall_save_history", CG_Recall_SaveHistory_f) \
+    V("recall_load_history", CG_Recall_LoadHistory_f) \
+    V("+recall_advance", IN_Recall_AdvanceDown)       \
+    V("-recall_advance", IN_Recall_AdvanceUp)         \
+    V("+recall_rewind", IN_Recall_RewindDown)         \
+    V("-recall_rewind", IN_Recall_RewindUp)           \
     V("cgMallocStats", CG_MallocStats_f)
 
 #define DECLARE_COMMAND_(name, func) consoleCommandStatus_t func(void);
@@ -141,6 +154,18 @@ void CG_AddTextPOI(const vec3_t origin, const char* text, float max_dist);
 void CG_DrawPOIs(void);
 
 //
+// cg_recall.c
+//
+
+// Returns NULL if not recalling.
+saveState_t* CG_Recall_GetState(void);
+
+void CG_Recall_AddState(void);
+void CG_Recall_Draw(void);
+void CG_Recall_AutoSaveHistory(void);
+void CG_Recall_AutoLoadHistory(void);
+
+//
 // cg_savestate.c
 //
 
@@ -165,8 +190,8 @@ qboolean IsItemEntityAvailableToClient(entityState_t* state, int clientNum);
 void DF_LoadBestCheckpoints(void);
 void DF_LoadSessionCheckpoints(void);
 
-// Updates some global timer thingy if it changed between snap and prev and
-// returns the timer
+// Updates some global timer thingy if it changed between snap and prev
+// and returns the timer
 int UpdateTimer(snapshot_t* snap, snapshot_t* prev);
 
 extern int obStatus[OB_MAX];

@@ -138,6 +138,7 @@ acos = -112
 CG_RegisterCvars = 0xfb
 CG_UpdateCvars = 0x19e
 CG_Init = 0xdc1
+CG_Shutdown = 0xf36
 CG_Draw2D_df = 0x2a12
 UpdateOB = 0xb21d
 CG_ConsoleCommand = 0x1ad89
@@ -146,6 +147,7 @@ CG_DrawActive = 0x1ce20
 CG_Item = 0x1ea0c
 CG_AddCEntity = 0x1f222
 CG_ConfigStringModified = 0x283fc
+CG_TransitionSnapshot = 0x2904d
 
 [data]
 obCurrentStickyType = 0x16e0
